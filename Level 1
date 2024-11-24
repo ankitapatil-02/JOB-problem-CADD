@@ -21,6 +21,24 @@ assign Cout = (sum1 + corr1 > 4'd9) ? 1'b1 : 1'b0;
 endmodule
 
 
+TestBench code:
+
+module BCD_Adder_tb;
+
+logic [7:0] A, B;   
+logic Cin;        
+logic [7:0] S;       
+logic Cout;        
+
+BCD_Adder uut(A,B,Cin,S,Cout);
+
+initial begin
+A = 8'h12; B = 8'h25; Cin = 0;
+#10;A = 8'h49; B = 8'h37; Cin = 1;
+#10;A = 8'h99; B = 8'h01; Cin = 0;
+#10; A = 8'h50; B = 8'h40; Cin = 1;
+end
+endmodule
 
 
 
