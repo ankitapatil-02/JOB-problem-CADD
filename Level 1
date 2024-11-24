@@ -1,0 +1,32 @@
+module bcdadder(A,B,Cin,S,Cout);
+input  logic [7:0] A,B;      
+input  logic Cin;   
+output logic [7:0] S;      
+output logic Cout;
+logic [3:0] sum0, sum1;    
+logic c0, c1;              
+logic [3:0] corr0, corr1;  
+
+assign {c0, sum0} = A[3:0] + B[3:0] + Cin;
+assign corr0 = (sum0 > 4'd9) ? 4'd6 : 4'd0;
+
+assign {c1, sum1} = A[7:4] + B[7:4] + c0;
+assign corr1 = (sum1 > 4'd9) ? 4'd6 : 4'd0;
+
+assign S[3:0] = sum0 + corr0;
+assign S[7:4] = sum1 + corr1;
+
+assign Cout = (sum1 + corr1 > 4'd9) ? 1'b1 : 1'b0;
+
+endmodule
+
+
+
+
+
+
+
+
+
+
+
