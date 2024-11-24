@@ -1,1 +1,184 @@
+module combinational_a(
+    input logic A, B, C, D,
+    output logic Y
+);
+    always_comb begin
+        Y = (~A & B & C & D) | (A & B & C) | (A & B & D) | (B & C & D) | A;
+    end
+endmodule
+
+Testbench code:
+module combinational_a_tb;
+    logic A, B, C, D;
+    logic Y;
+
+    // Instantiate the module
+    combinational_a uut (
+        .A(A), .B(B), .C(C), .D(D), .Y(Y)
+    );
+
+    initial begin
+        $display("A B C D | Y");
+        $monitor("%b %b %b %b | %b", A, B, C, D, Y);
+        
+        // Test all possible combinations
+        for (int i = 0; i < 16; i++) begin
+            {A, B, C, D} = i; #10;
+        end
+        
+        $finish;
+    end
+endmodule
+
+
+module combinational_b(
+    input logic A, B, C, D, E,
+    output logic Y
+);
+    always_comb begin
+        Y = (A & B & C) | (A & B & D) | (A & B & E) | (A & C & D) | 
+            (A & C & E) | ((A | D | E) & ~B & C & D) | (B & C & E) | 
+            (B & D & E) | (C & D & E);
+    end
+endmodule
+
+Testbench code:
+module combinational_b_tb;
+    logic A, B, C, D, E;
+    logic Y;
+
+    // Instantiate the module
+    combinational_b uut (
+        .A(A), .B(B), .C(C), .D(D), .E(E), .Y(Y)
+    );
+
+    initial begin
+        $display("A B C D E | Y");
+        $monitor("%b %b %b %b %b | %b", A, B, C, D, E, Y);
+        
+        // Test all possible combinations
+        for (int i = 0; i < 32; i++) begin
+            {A, B, C, D, E} = i; #10;
+        end
+        
+        $finish;
+    end
+endmodule
+
+module two_output_function(
+    input logic A, B, C, D,
+    output logic Y, Z
+);
+    always_comb begin
+        Y = (~A & B & ~C) | (A & D);  // Example logic
+        Z = (A & ~B & D) | (~C & ~D); // Example logic
+    end
+endmodule
+
+Testbench code:
+module two_output_function_tb;
+    logic A, B, C, D;
+    logic Y, Z;
+
+    // Instantiate the module
+    two_output_function uut (
+        .A(A), .B(B), .C(C), .D(D), .Y(Y), .Z(Z)
+    );
+
+    initial begin
+        $display("A B C D | Y Z");
+        $monitor("%b %b %b %b | %b %b", A, B, C, D, Y, Z);
+        
+        // Test all possible combinations
+        for (int i = 0; i < 16; i++) begin
+            {A, B, C, D} = i; #10;
+        end
+        
+        $finish;
+    end
+endmodule
+
+module prime_and_divisible(
+    input logic [3:0] A,
+    output logic P, D
+);
+    always_comb begin
+        // P: 1 if number is prime
+        P = (A == 4'd2) | (A == 4'd3) | (A == 4'd5) | 
+            (A == 4'd7) | (A == 4'd11) | (A == 4'd13);
+        
+        // D: 1 if number is divisible by 3
+        D = (A % 3 == 0);
+    end
+endmodule
+
+Testbench:
+module prime_and_divisible_tb;
+    logic [3:0] A;
+    logic P, D;
+
+    // Instantiate the module
+    prime_and_divisible uut (
+        .A(A), .P(P), .D(D)
+    );
+
+    initial begin
+        $display("A | P D");
+        $monitor("%d | %b %b", A, P, D);
+        
+        // Test all possible values
+        for (int i = 0; i < 16; i++) begin
+            A = i; #10;
+        end
+        
+        $finish;
+    end
+endmodule
+
+module gray_code_counter(
+    input logic clk, reset,
+    output logic [2:0] gray
+);
+    logic [2:0] binary;
+
+    always_ff @(posedge clk or posedge reset) begin
+        if (reset)
+            binary <= 3'b000;
+        else
+            binary <= binary + 1;
+    end
+
+    always_comb begin
+        gray = binary ^ (binary >> 1); // Gray code conversion
+    end
+endmodule
+
+module gray_code_counter_tb;
+    logic clk, reset;
+    logic [2:0] gray;
+
+    // Instantiate the module
+    gray_code_counter uut (
+        .clk(clk), .reset(reset), .gray(gray)
+    );
+
+    // Clock generation
+    initial clk = 0;
+    always #5 clk = ~clk;
+
+    initial begin
+        
+
+        reset = 1; #10;
+        reset = 0;
+
+        // Run counter for some cycles
+        #100;
+
+        $finish;
+    end
+endmodule
+
+
+
 
