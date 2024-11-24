@@ -1,1 +1,83 @@
+module floating_point_multiplier (
+    input  logic [31:0] A,    
+    input  logic [31:0] B,    
+    output logic [31:0] result 
+);
 
+    
+    logic [7:0] expA, expB;          // Exponents
+    logic [23:0] mantA, mantB;       // Mantissas (with implicit leading 1)
+    logic [47:0] mantProduct;        // Product of mantissas
+    logic [7:0] expSum;              // Sum of exponents
+    logic [7:0] finalExponent;       // Final exponent
+    logic [22:0] finalMantissa;      // Final mantissa
+    logic overflow;                  // Overflow flag
+
+   
+    assign expA = A[30:23];
+    assign expB = B[30:23];
+    assign mantA = {1'b1, A[22:0]};  
+    assign mantB = {1'b1, B[22:0]}; 
+
+    
+    assign mantProduct = mantA * mantB;
+
+    
+    assign expSum = expA + expB - 8'd127;
+
+    
+    always_comb begin
+        if (mantProduct[47]) begin
+            
+            finalMantissa = mantProduct[46:24]; 
+            finalExponent = expSum + 1;         
+        end else begin
+            
+            finalMantissa = mantProduct[45:23]; 
+            finalExponent = expSum;            
+        end
+    end
+
+    assign overflow = (finalExponent >= 8'hFF);
+    assign result = (overflow) ? 32'h7F800000 : {1'b0, finalExponent, finalMantissa};
+
+endmodule
+
+
+Testbench:
+module floating_point_multiplier_tb;
+
+    logic [31:0] A, B;      
+    logic [31:0] result;    
+
+    
+    floating_point_multiplier uut (A,B,result);
+
+    initial begin
+        // Monitor changes
+        $monitor("Time: %0t | A = %h, B = %h, Result = %h", $time, A, B, result);
+
+        // Test Cases
+        A = 32'h3F800000; // 1.0
+        B = 32'h40000000; // 2.0
+        #10;
+
+        A = 32'h40400000; // 3.0
+        B = 32'h40800000; // 4.0
+        #10;
+
+        A = 32'h3F800000; // 1.0
+        B = 32'h3F800000; // 1.0
+        #10;
+
+        A = 32'h7F800000; // Infinity
+        B = 32'h3F800000; // 1.0
+        #10;
+
+        A = 32'h3F800000; // 1.0
+        B = 32'h00000000; // 0.0
+        #10;
+
+        $finish;
+    end
+endmodule
