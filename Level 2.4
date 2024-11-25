@@ -1,0 +1,46 @@
+Design code:
+module gray_code_counter(
+    input logic clk, reset,
+    output logic [2:0] gray
+);
+    logic [2:0] binary;
+
+    always_ff @(posedge clk or posedge reset) begin
+        if (reset)
+            binary <= 3'b000;
+        else
+            binary <= binary + 1;
+    end
+
+    always_comb begin
+        gray = binary ^ (binary >> 1); // Gray code conversion
+    end
+endmodule
+
+
+Testbench:
+module gray_code_counter_tb;
+    logic clk, reset;
+    logic [2:0] gray;
+
+    // Instantiate the module
+    gray_code_counter uut (
+        .clk(clk), .reset(reset), .gray(gray)
+    );
+
+    // Clock generation
+    initial clk = 0;
+    always #5 clk = ~clk;
+
+    initial begin
+        
+
+        reset = 1; #10;
+        reset = 0;
+
+        // Run counter for some cycles
+        #100;
+
+        $finish;
+    end
+endmodule
